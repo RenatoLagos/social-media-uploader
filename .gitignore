@@ -21,6 +21,9 @@ credentialstokens/
 # Instagram session (contains auth tokens)
 *session*.json
 
+# TikTok token
+credentials/tiktok_token.json
+
 # Logs
 logs/*.log
 logs/**/*.log

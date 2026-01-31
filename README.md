@@ -1,101 +1,103 @@
 # Social Media Video Uploader
 
-Sistema de automatizacion para subir videos cortos a **YouTube Shorts**, **Instagram Reels** y **TikTok** con transcripcion y descripciones generadas por IA.
+Automation system for uploading short videos to **YouTube Shorts**, **Instagram Reels**, and **TikTok** with AI-powered transcription and descriptions.
 
-## Caracteristicas
+## Features
 
-- Transcripcion automatica del audio con **OpenAI Whisper**
-- Generacion de descripciones optimizadas por plataforma con **GPT-4**
-- Upload automatico a multiples plataformas
-- CLI intuitivo con indicadores de progreso
-- Logging estructurado para debugging
-- Manejo robusto de errores (si una plataforma falla, continua con las otras)
+- Automatic audio transcription with **OpenAI Whisper**
+- Platform-optimized description generation with **GPT-4**
+- Automatic upload to multiple platforms
+- Intuitive CLI with progress indicators
+- Structured logging for debugging
+- Robust error handling (if one platform fails, continues with others)
 
-## Requisitos
+## Requirements
 
 - Python 3.11+
-- Cuenta de OpenAI con API key
-- Credenciales de YouTube (Google Cloud)
-- Cuenta profesional de Instagram con Graph API (opcional)
-- App aprobada de TikTok (opcional)
+- OpenAI account with API key
+- YouTube credentials (Google Cloud)
+- Instagram professional account (optional)
+- Approved TikTok app (optional)
 
-## Instalacion
+## Installation
 
-### 1. Clonar y preparar entorno
+### 1. Clone and setup environment
 
 ```bash
-cd C:\Users\Admin\Projects\upload_to_socialmedia
+git clone https://github.com/RenatoLagos/social-media-uploader.git
+cd social-media-uploader
 
-# Activar entorno virtual
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
 .\venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
 
-# Instalar dependencias
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configurar variables de entorno
+### 2. Configure environment variables
 
 ```bash
-# Copiar plantilla
-copy .env.example .env
+# Copy template
+cp .env.example .env
 
-# Editar .env con tus credenciales
-notepad .env
+# Edit .env with your credentials
 ```
 
-## Configuracion de APIs
+## API Configuration
 
-### OpenAI (Requerido)
+### OpenAI (Required)
 
-1. Ir a https://platform.openai.com/api-keys
-2. Crear nueva API key
-3. Agregar a `.env`:
+1. Go to https://platform.openai.com/api-keys
+2. Create new API key
+3. Add to `.env`:
    ```
    OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
    ```
 
-### YouTube (Requerido para YouTube Shorts)
+### YouTube (Required for YouTube Shorts)
 
-1. Ir a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crear nuevo proyecto
-3. Habilitar **YouTube Data API v3**
-4. Crear credenciales OAuth 2.0:
-   - Ir a APIs & Services > Credentials
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project
+3. Enable **YouTube Data API v3**
+4. Create OAuth 2.0 credentials:
+   - Go to APIs & Services > Credentials
    - Create Credentials > OAuth client ID
    - Application type: **Desktop app**
-   - Descargar JSON
-5. Guardar el archivo como `credentials/youtube_client_secret.json`
-6. Ejecutar autenticacion inicial:
+   - Download JSON
+5. Save the file as `credentials/youtube_client_secret.json`
+6. Run initial authentication:
    ```bash
    python scripts/authenticate_youtube.py
    ```
-   Se abrira el navegador para autorizar la aplicacion.
+   A browser window will open for authorization.
 
-### Instagram (Opcional)
+### Instagram (Optional)
 
-Instagram Graph API requiere una cuenta profesional y video en URL publica.
+Uses `instagrapi` library for direct uploads with username/password.
 
-1. Convertir cuenta a Professional/Creator
-2. Crear app en [Meta for Developers](https://developers.facebook.com/)
-3. Agregar producto "Instagram Graph API"
-4. Obtener Page Access Token de larga duracion
-5. Obtener Instagram Business Account ID
-6. Agregar a `.env`:
+1. Add to `.env`:
    ```
-   INSTAGRAM_ACCESS_TOKEN=EAAxxxxxxxxxx
-   INSTAGRAM_BUSINESS_ACCOUNT_ID=17841400000000000
+   INSTAGRAM_USERNAME=your_username
+   INSTAGRAM_PASSWORD=your_password
+   ENABLE_INSTAGRAM=true
    ```
 
-**Nota**: Para subir a Instagram, el video debe estar en una URL publica (Cloudinary, S3, etc.)
+**Note**: This uses an unofficial library. Use at your own risk.
 
-### TikTok (Opcional - Requiere aprobacion)
+### TikTok (Optional - Requires Approval)
 
-La API de TikTok requiere aprobacion que puede tomar semanas.
+TikTok API requires app approval which can take weeks.
 
-1. Registrarse en [TikTok for Developers](https://developers.tiktok.com/)
-2. Crear app con Content Posting API
-3. Esperar aprobacion
-4. Una vez aprobada, agregar a `.env`:
+1. Register at [TikTok for Developers](https://developers.tiktok.com/)
+2. Create app with Content Posting API
+3. Wait for approval
+4. Once approved, add to `.env`:
    ```
    TIKTOK_CLIENT_KEY=awxxxxxxxxxx
    TIKTOK_CLIENT_SECRET=xxxxxxxxxxxx
@@ -103,67 +105,63 @@ La API de TikTok requiere aprobacion que puede tomar semanas.
    ENABLE_TIKTOK=true
    ```
 
-## Uso
+## Usage
 
-### Uso basico
+### Basic usage
 
 ```bash
-python upload.py C:\videos\mi_video.mp4
+python upload.py /path/to/video.mp4
 ```
 
-### Con opciones
+### With options
 
 ```bash
-# Con titulo personalizado
-python upload.py video.mp4 --title "Mi video genial"
+# With custom title
+python upload.py video.mp4 --title "My awesome video"
 
-# Solo YouTube
+# YouTube only
 python upload.py video.mp4 --only-youtube
 
-# Saltar Instagram
+# Skip Instagram
 python upload.py video.mp4 --skip-instagram
 
-# Con URL de Instagram (si el video esta hosteado)
-python upload.py video.mp4 --instagram-url "https://cloudinary.com/mi_video.mp4"
-
-# Verificar configuracion
+# Check configuration
 python upload.py video.mp4 --check-config
 
-# Modo verbose
+# Verbose mode
 python upload.py video.mp4 --verbose
 ```
 
-### Opciones disponibles
+### Available options
 
-| Opcion | Descripcion |
+| Option | Description |
 |--------|-------------|
-| `--title, -t` | Titulo personalizado para el video |
-| `--instagram-url` | URL publica del video para Instagram |
-| `--only-youtube` | Solo subir a YouTube |
-| `--only-instagram` | Solo subir a Instagram |
-| `--only-tiktok` | Solo subir a TikTok |
-| `--skip-youtube` | Saltar YouTube |
-| `--skip-instagram` | Saltar Instagram |
-| `--skip-tiktok` | Saltar TikTok |
-| `--check-config` | Verificar configuracion sin subir |
-| `--verbose, -v` | Mostrar logs detallados |
+| `--title, -t` | Custom title for the video |
+| `--only-youtube` | Upload to YouTube only |
+| `--only-instagram` | Upload to Instagram only |
+| `--only-tiktok` | Upload to TikTok only |
+| `--skip-youtube` | Skip YouTube |
+| `--skip-instagram` | Skip Instagram |
+| `--skip-tiktok` | Skip TikTok |
+| `--check-config` | Verify configuration without uploading |
+| `--verbose, -v` | Show detailed logs |
 
-## Verificar Configuracion
+## Verify Configuration
 
 ```bash
 python scripts/test_apis.py
 ```
 
-Esto verificara que todas las APIs esten correctamente configuradas.
+This will verify all APIs are correctly configured.
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
-upload_to_socialmedia/
+social-media-uploader/
 ├── src/
-│   ├── main.py                 # Orchestrador principal
+│   ├── main.py                 # Main orchestrator
 │   ├── config/
-│   │   └── settings.py         # Configuracion
+│   │   └── settings.py         # Configuration
 │   ├── services/
 │   │   ├── transcription_service.py   # OpenAI Whisper
 │   │   ├── description_service.py     # GPT-4
@@ -171,68 +169,64 @@ upload_to_socialmedia/
 │   │   ├── instagram_service.py       # Instagram API
 │   │   └── tiktok_service.py          # TikTok API
 │   ├── utils/
-│   │   ├── video_validator.py   # Validacion de videos
+│   │   ├── video_validator.py   # Video validation
 │   │   ├── logger.py            # Logging
-│   │   └── exceptions.py        # Excepciones
+│   │   └── exceptions.py        # Exceptions
 │   └── models/
-│       └── video_metadata.py    # Modelos de datos
+│       └── video_metadata.py    # Data models
 ├── scripts/
-│   ├── authenticate_youtube.py  # Setup YouTube OAuth
-│   └── test_apis.py             # Verificar configuracion
-├── credentials/                  # Credenciales (no en git)
-├── logs/                         # Logs de ejecucion
-├── upload.py                     # CLI principal
+│   ├── authenticate_youtube.py  # YouTube OAuth setup
+│   └── test_apis.py             # Verify configuration
+├── credentials/                  # Credentials (not in git)
+├── logs/                         # Execution logs
+├── upload.py                     # Main CLI
 ├── requirements.txt
-├── .env                          # Variables de entorno (no en git)
+├── .env                          # Environment variables (not in git)
 └── .env.example
 ```
 
-## Limitaciones
+## Limitations
 
-- **Formato**: Solo videos MP4
-- **Duracion**: Maximo 60 segundos (configurable)
-- **Tamano**: Maximo 500 MB (configurable)
-- **Instagram**: Requiere video en URL publica
-- **TikTok**: Requiere app aprobada
+- **Format**: MP4 videos only
+- **Duration**: Maximum 120 seconds (configurable)
+- **Size**: Maximum 500 MB (configurable)
+- **TikTok**: Requires approved app
 
-## Flujo de Procesamiento
+## Processing Flow
 
-1. **Validacion**: Verifica formato, duracion y tamano del video
-2. **Transcripcion**: Extrae audio y lo transcribe con Whisper
-3. **Descripciones**: GPT-4 genera descripciones optimizadas para cada plataforma
-4. **Upload**: Sube el video a cada plataforma habilitada
+1. **Validation**: Checks video format, duration, and size
+2. **Transcription**: Extracts audio and transcribes with Whisper
+3. **Descriptions**: GPT-4 generates optimized descriptions for each platform
+4. **Upload**: Uploads video to each enabled platform
 
-Si una plataforma falla, el proceso continua con las demas.
+If one platform fails, the process continues with the others.
 
 ## Troubleshooting
 
-### "OPENAI_API_KEY no configurada"
-Asegurate de tener el archivo `.env` con la API key correcta.
+### "OPENAI_API_KEY not configured"
+Make sure you have the `.env` file with the correct API key.
 
-### "Archivo de credenciales no encontrado" (YouTube)
-Descarga el archivo OAuth JSON de Google Cloud Console y guardalo en `credentials/youtube_client_secret.json`.
+### "Credentials file not found" (YouTube)
+Download the OAuth JSON file from Google Cloud Console and save it to `credentials/youtube_client_secret.json`.
 
-### "Token corrupto" (YouTube)
-Elimina `credentials/tokens/youtube_token.json` y ejecuta `python scripts/authenticate_youtube.py` nuevamente.
-
-### "Se requiere URL publica" (Instagram)
-Instagram Graph API no acepta archivos locales. Sube el video a Cloudinary, S3, u otro servicio que proporcione URLs publicas.
+### "Corrupt token" (YouTube)
+Delete `credentials/tokens/youtube_token.json` and run `python scripts/authenticate_youtube.py` again.
 
 ### Rate limits
-El sistema tiene reintentos automaticos con backoff exponencial. Si persiste, espera unos minutos antes de reintentar.
+The system has automatic retries with exponential backoff. If it persists, wait a few minutes before retrying.
 
-## Costos Estimados
+## Estimated Costs
 
-- **OpenAI Whisper**: ~$0.006 por minuto de audio
-- **GPT-4**: ~$0.03 por 1K tokens (aprox. $0.02-0.05 por video)
-- **YouTube/Instagram/TikTok**: Gratis
+- **OpenAI Whisper**: ~$0.006 per minute of audio
+- **GPT-4**: ~$0.03 per 1K tokens (approx. $0.02-0.05 per video)
+- **YouTube/Instagram/TikTok**: Free
 
-Para un video de 60 segundos, el costo aproximado es **$0.03-0.08 USD**.
+For a 60-second video, the approximate cost is **$0.03-0.08 USD**.
 
-## Licencia
+## License
 
 MIT
 
-## Contribuir
+## Contributing
 
-Pull requests son bienvenidos. Para cambios grandes, abre un issue primero.
+Pull requests are welcome. For major changes, please open an issue first.
